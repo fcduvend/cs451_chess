@@ -2,6 +2,8 @@ import System.Exit
 import Data.List
 
 data Piece = Piece String Int Int deriving (Show)
+instance Eq Piece where
+   (Piece x y z) == (Piece x2 y2 z2) = (y == y2) && (z == z2)
 
 main :: IO()
 main = do
@@ -56,13 +58,31 @@ display pieces = do
   let newPieces = sortOn (\(Piece _ x y) -> y + (x * 8)) pieces :: [Piece]
   putStrLn (indexes newPieces "" 0)
 
+  --if parsecmd doesn't have a proper input just pass and continue
   cmd <- getLine
   parsecmd cmd
-  display newPieces
-  
+  --use the input from cmd to find a move
+  display (deletePiece(findPiece(Piece "Nan" (head(parseMove cmd)) (head(tail(parseMove cmd)))) newPieces) newPieces)
+  --(deletePiece (Piece "K" 7 3) newPieces)
+
+findPiece :: Piece -> [Piece] -> Piece
+findPiece x y = head[ z | z <- y , z == x]
+
+parseMove :: [Char] -> [Int]
+parseMove x = makeList(read x :: Int)
+
+makeList :: Int -> [Int]
+makeList x = [] ++ [div (mod x 10000) 1000] ++ [div (mod x 1000) 100] ++ [div (mod x 100) 10] ++ [(mod x 10)]
+
 parsecmd :: [Char] -> IO()
-parsecmd "q" = end
-parsecmd _ = return ()
+parsecmd x | (x == "q") = end
+           | otherwise = return()
+
+deletePiece :: Piece -> [Piece] -> [Piece]
+deletePiece x y = [ z | z <- y , z /= x]
+
+addPiece :: Piece -> [Piece] -> [Piece]
+addPiece x y = [x] ++ y
 
 end :: IO()
 end = exitWith ExitSuccess
