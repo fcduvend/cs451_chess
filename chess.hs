@@ -81,7 +81,7 @@ parsecmd x | (x == "q") = end
            | otherwise = return()
 
 movePiece :: [Char] -> Piece -> [Piece] -> [Piece]
-movePiece cmd x y = (addPiece(Piece "K" 3 3) (deletePiece x y))
+movePiece cmd x y = (addPiece(Piece (head(slist [x])) (last(init(parseMove cmd))) (last(parseMove cmd))) (deletePiece x y))
 
 deletePiece :: Piece -> [Piece] -> [Piece]
 deletePiece x y = [ z | z <- y , z /= x]
