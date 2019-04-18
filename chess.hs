@@ -1,7 +1,11 @@
 import System.Exit
 import Data.List
+import Data.Sequence
 
+data Move = Move Piece [Int] deriving (Show)
 data Piece = Piece String Int Int deriving (Show)
+instance Eq Piece where
+   (Piece x y z) == (Piece x2 y2 z2) = (y == y2) && (z == z2)
 
 main :: IO()
 main = do
@@ -16,13 +20,18 @@ main = do
 --main loop
 display :: [Piece] -> IO()
 display pieces = do
-  let newPieces = sortOn (charIdx) pieces :: [Piece]
+  let newPieces = Data.List.sortOn (charIdx) pieces :: [Piece]
   putStrLn (displayBoard newPieces "" 0)
 
+  --if parsecmd doesn't have a proper input just pass and continue
   cmd <- getLine
-  parseCmd cmd
-  display newPieces
-  
+  parsecmd cmd
+  --use the input from cmd to find a move
+  display (movePiece cmd (findPiece(Piece "Nan" (head(parseMove cmd)) (head(tail(parseMove cmd)))) newPieces) newPieces)
+
+
+slist :: [Piece] -> [[Char]]
+slist = map (\(Piece a _ _) -> a)
 
 --calculate a piece's 1-D index based off of its 2-D coordinates
 charIdx :: Piece -> Int
@@ -62,10 +71,28 @@ getPiece (Piece a x y) =
     "\n|" ++ a --break to next line when at the end of a row
   else 
     a
+  
+findPiece :: Piece -> [Piece] -> Piece
+findPiece x y = head[ z | z <- y , z == x]
 
-parseCmd :: [Char] -> IO()
-parseCmd "q" = end
-parseCmd _ = return ()
+parseMove :: [Char] -> [Int]
+parseMove x = makeList(read x :: Int)
+
+makeList :: Int -> [Int]
+makeList x = [] ++ [div (mod x 10000) 1000] ++ [div (mod x 1000) 100] ++ [div (mod x 100) 10] ++ [(mod x 10)]
+
+parsecmd :: [Char] -> IO()
+parsecmd x | (x == "q") = end
+           | otherwise = return()
+
+movePiece :: [Char] -> Piece -> [Piece] -> [Piece]
+movePiece cmd x y = (addPiece(Piece (head(slist [x])) (last(init(parseMove cmd))) (last(parseMove cmd))) (deletePiece x y))
+
+deletePiece :: Piece -> [Piece] -> [Piece]
+deletePiece x y = [ z | z <- y , z /= x]
+
+addPiece :: Piece -> [Piece] -> [Piece]
+addPiece x y = [x] ++ y
 
 end :: IO()
 end = exitWith ExitSuccess
