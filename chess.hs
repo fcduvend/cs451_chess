@@ -1,6 +1,8 @@
 import System.Exit
 import Data.List
+import Data.Sequence
 
+data Move = Move Piece [Int] deriving (Show)
 data Piece = Piece String Int Int deriving (Show)
 instance Eq Piece where
    (Piece x y z) == (Piece x2 y2 z2) = (y == y2) && (z == z2)
@@ -62,8 +64,8 @@ display pieces = do
   cmd <- getLine
   parsecmd cmd
   --use the input from cmd to find a move
-  display (deletePiece(findPiece(Piece "Nan" (head(parseMove cmd)) (head(tail(parseMove cmd)))) newPieces) newPieces)
-  --(deletePiece (Piece "K" 7 3) newPieces)
+  display (movePiece cmd (findPiece(Piece "Nan" (head(parseMove cmd)) (head(tail(parseMove cmd)))) newPieces) newPieces)
+
 
 findPiece :: Piece -> [Piece] -> Piece
 findPiece x y = head[ z | z <- y , z == x]
@@ -77,6 +79,9 @@ makeList x = [] ++ [div (mod x 10000) 1000] ++ [div (mod x 1000) 100] ++ [div (m
 parsecmd :: [Char] -> IO()
 parsecmd x | (x == "q") = end
            | otherwise = return()
+
+movePiece :: [Char] -> Piece -> [Piece] -> [Piece]
+movePiece cmd x y = (addPiece(Piece "K" 3 3) (deletePiece x y))
 
 deletePiece :: Piece -> [Piece] -> [Piece]
 deletePiece x y = [ z | z <- y , z /= x]
