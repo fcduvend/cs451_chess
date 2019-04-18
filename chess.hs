@@ -10,68 +10,62 @@ main = do
                  Piece "P" 6 0, Piece "P" 6 1, Piece "P" 6 2, Piece "P" 6 3, Piece "P" 6 4, Piece "P" 6 5, Piece "P" 6 6, Piece "P" 6 7,
                  Piece "R" 7 0, Piece "H" 7 1, Piece "B" 7 2, Piece "K" 7 3, Piece "Q" 7 4, Piece "B" 7 5, Piece "H" 7 6, Piece "R" 7 7 ] :: [Piece]
 
-  --putStrLn (show (indexes pieces "" 0))
   display pieces
   end
 
-slist :: [Piece] -> [[Char]]
-slist = map (\(Piece a _ _) -> a)
-
-xlist :: [Piece] -> [Int]
-xlist = map (\(Piece _ a _) -> a)
-
-ylist :: [Piece] -> [Int]
-ylist = map (\(Piece _ _ a) -> a)
-
-charidx :: Piece -> Int
-charidx (Piece _ x y) = y + (x * 8)
-
-indexes :: [Piece] -> [Char] -> Int -> [Char]
-indexes (x:xs) str counter =
-  if counter == 64 then
-    str
-  else
-    if counter == (charidx x) then
-      indexes xs (str ++ (getAwNewLn x)) (counter + 1)
-    else
-      if counter `mod` 8 == 0 then
-        indexes (x:xs) (str ++ "| \n") (counter + 1)
-      else
-        indexes (x:xs) (str ++ "| ") (counter + 1)
-
-
-
-indexes [] str counter =
-  if counter == 64 then
-    str
-  else
-      if counter `mod` 8 == 0 then
-        indexes [] (str ++ "| \n") (counter + 1)
-      else
-        indexes [] (str ++ "| ") (counter + 1)
-
+--main loop
 display :: [Piece] -> IO()
 display pieces = do
-
-  let newPieces = sortOn (\(Piece _ x y) -> y + (x * 8)) pieces :: [Piece]
-  putStrLn (indexes newPieces "" 0)
+  let newPieces = sortOn (charIdx) pieces :: [Piece]
+  putStrLn (displayBoard newPieces "" 0)
 
   cmd <- getLine
-  parsecmd cmd
+  parseCmd cmd
   display newPieces
   
-parsecmd :: [Char] -> IO()
-parsecmd "q" = end
-parsecmd _ = return ()
+
+--calculate a piece's 1-D index based off of its 2-D coordinates
+charIdx :: Piece -> Int
+charIdx (Piece _ x y) = y + (x * 8)
+
+{-display chess board with pieces
+ -Note: pieces must be soretd by charIdx before calling displayBoard -}
+displayBoard :: [Piece] -> [Char] -> Int -> [Char]
+displayBoard (x:xs) str counter =
+  if counter == 64 then
+    str ++ "|" --end of recursive calls
+  else
+    if counter == (charIdx x) then
+      displayBoard xs (str ++ "|" ++ (getPiece x)) (counter + 1) --if a piece needs to be printed, print it
+    else
+      printNoPiece (x:xs) str counter --otherwise print a blank space
+
+displayBoard [] str counter =
+  if counter == 64 then
+    str ++ "|" --end of recursive calls
+  else
+    printNoPiece [] str counter --print a blank space
+
+
+--print a blank square with a newline if necessary
+printNoPiece :: [Piece] -> [Char] -> Int -> [Char]
+printNoPiece arr str counter = 
+  if counter `mod` 8 == 0 then
+    displayBoard arr (str ++ "|\n| ") (counter + 1)
+  else
+    displayBoard arr (str ++ "| ") (counter + 1)
+
+--format a piece for 'displayBoard'
+getPiece :: Piece -> [Char]
+getPiece (Piece a x y) = 
+  if (charIdx (Piece a x y)) `mod` 8 == 0 && (charIdx (Piece a x y)) /= 0 then 
+    "\n|" ++ a --break to next line when at the end of a row
+  else 
+    a
+
+parseCmd :: [Char] -> IO()
+parseCmd "q" = end
+parseCmd _ = return ()
 
 end :: IO()
 end = exitWith ExitSuccess
-
-getX :: Piece -> Int
-getX (Piece _ a _) = a
-
-getY :: Piece -> Int
-getY (Piece _ _ a) = a
-
-getAwNewLn :: Piece -> [Char]
-getAwNewLn (Piece a x y) = if y + (x * 8) `mod` 8 == 0 then "\n|" ++ a else "|" ++ a
