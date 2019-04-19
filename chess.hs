@@ -9,10 +9,10 @@ instance Eq Piece where
 
 main :: IO()
 main = do
-  let pieces = [ Piece "r" 0 0, Piece "h" 0 1, Piece "b" 0 2, Piece "k" 0 3, Piece "q" 0 4, Piece "b" 0 5, Piece "h" 0 6, Piece "r" 0 7,
-                 Piece "p" 1 0, Piece "p" 1 1, Piece "p" 1 2, Piece "p" 1 3, Piece "p" 1 4, Piece "p" 1 5, Piece "p" 1 6, Piece "p" 1 7,
-                 Piece "P" 6 0, Piece "P" 6 1, Piece "P" 6 2, Piece "P" 6 3, Piece "P" 6 4, Piece "P" 6 5, Piece "P" 6 6, Piece "P" 6 7,
-                 Piece "R" 7 0, Piece "H" 7 1, Piece "B" 7 2, Piece "K" 7 3, Piece "Q" 7 4, Piece "B" 7 5, Piece "H" 7 6, Piece "R" 7 7 ] :: [Piece]
+  let pieces = [ Piece "r" 1 1, Piece "h" 1 2, Piece "b" 1 3, Piece "k" 1 4, Piece "q" 1 5, Piece "b" 1 6, Piece "h" 1 7, Piece "r" 1 8,
+                 Piece "p" 2 1, Piece "p" 2 2, Piece "p" 2 3, Piece "p" 2 4, Piece "p" 2 5, Piece "p" 2 6, Piece "p" 2 7, Piece "p" 2 8,
+                 Piece "P" 7 1, Piece "P" 7 2, Piece "P" 7 3, Piece "P" 7 4, Piece "P" 7 5, Piece "P" 7 6, Piece "P" 7 7, Piece "P" 7 8,
+                 Piece "R" 8 1, Piece "H" 8 2, Piece "B" 8 3, Piece "K" 8 4, Piece "Q" 8 5, Piece "B" 8 6, Piece "H" 8 7, Piece "R" 8 8 ] :: [Piece]
 
   display pieces
   end
@@ -35,25 +35,25 @@ slist = map (\(Piece a _ _) -> a)
 
 --calculate a piece's 1-D index based off of its 2-D coordinates
 charIdx :: Piece -> Int
-charIdx (Piece _ x y) = y + (x * 8)
+charIdx (Piece _ x y) = (y - 1) + ((x - 1) * 8)
+
+
 
 {-display chess board with pieces
  -Note: pieces must be soretd by charIdx before calling displayBoard -}
 displayBoard :: [Piece] -> [Char] -> Int -> [Char]
+
+--counter has reached its max value; end of recursive calls
+displayBoard _ str 64 = str ++ "|"
+
 displayBoard (x:xs) str counter =
-  if counter == 64 then
-    str ++ "|" --end of recursive calls
-  else
     if counter == (charIdx x) then
       displayBoard xs (str ++ "|" ++ (getPiece x)) (counter + 1) --if a piece needs to be printed, print it
     else
       printNoPiece (x:xs) str counter --otherwise print a blank space
 
-displayBoard [] str counter =
-  if counter == 64 then
-    str ++ "|" --end of recursive calls
-  else
-    printNoPiece [] str counter --print a blank space
+displayBoard [] str counter = printNoPiece [] str counter --print a blank space
+
 
 
 --print a blank square with a newline if necessary
