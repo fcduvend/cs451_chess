@@ -35,6 +35,7 @@ display board = do
   
 performCmd :: [Char] -> [Char] -> [Char]
 performCmd command board = (Data.List.take elem1Index board) ++ " "  ++ (sublist (elem1Index+1) (elem2Index-1) board) ++ [(board !! elem1Index)] ++ (sublist (elem2Index+1) 64 board) --Only works one way, need to fix to work the other way
+    --If elem1Index > elem2Index, check into swapping the order of parsing
    where elem1Index = charIdx (parseMove command)
          elem2Index = charIdx (tail (tail (parseMove command)))
          
