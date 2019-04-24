@@ -31,15 +31,18 @@ display board = do
   cmd <- getLine
   parsecmd cmd
   
-  
   --use the input from cmd to find a move
   display (performCmd cmd board)
   
 performCmd :: [Char] -> [Char] -> [Char]
-performCmd command board = (Data.List.take elem1Index board) ++ " "  ++ (sublist (elem1Index+1) (elem2Index-1) board) ++ [(board !! elem1Index)] ++ (sublist (elem2Index+1) 64 board) --Only works one way, need to fix to work the other way
-    --If elem1Index > elem2Index, check into swapping the order of parsing
-   where elem1Index = charIdx (parseMove command)
-         elem2Index = charIdx (tail (tail (parseMove command)))
+performCmd command board = 
+  if elem1Index <= elem2Index then
+    (Data.List.take elem1Index board) ++ " "  ++ (sublist (elem1Index+1) (elem2Index-1) board) ++ [(board !! elem1Index)] ++ (sublist (elem2Index+1) 64 board)
+  else
+    (Data.List.take elem2Index board) ++ [(board !! elem1Index)] ++ (sublist (elem2Index + 1) (elem1Index - 1) board) ++ " " ++ (sublist (elem1Index + 1) 64 board)
+
+  where elem1Index = charIdx (parseMove command)
+        elem2Index = charIdx (tail (tail (parseMove command)))
          
 sublist :: Int -> Int -> [Char] -> [Char]
 sublist startIndex endIndex list = Data.List.take (endIndex-startIndex+1) (removeFromStart startIndex list)
