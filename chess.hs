@@ -22,10 +22,12 @@ main = do
 display :: [Char] -> IO()
 display board = do
 
+  putStrLn "   1 2 3 4 5 6 7 8"
   putStrLn (printBoard board 0)
   --putStrLn (displayboard board)
 
   --if parsecmd doesn't have a proper input just pass and continue
+  putStrLn "Enter the coordinates of the piece to move as well as the destination coordinates (eg 7161 to move (7,1) to (6,1)):"
   cmd <- getLine
   parsecmd cmd
   
@@ -49,8 +51,15 @@ removeFromStart x list = removeFromStart (x-1) (tail list)
 
 printBoard :: [Char] -> Int -> [Char]
 printBoard board 64 = []
-printBoard board elemIndex = "|" ++ [(board !! elemIndex)] ++ (if ((elemIndex ` mod` 8) == 7) then "|\n" else "") ++ (printBoard board (elemIndex+1))
+printBoard board elemIndex = (printLineNumber elemIndex) ++ "|" ++ [(board !! elemIndex)] ++ (if ((elemIndex ` mod` 8) == 7) then "|\n" else "") ++ (printBoard board (elemIndex+1))
   
+--print line number at the left side of each row
+printLineNumber :: Int -> [Char]
+printLineNumber elemIndex = if elemIndex `mod` 8 == 0 then 
+                              show((ceiling(fromIntegral(elemIndex) / 8.0)) + 1) ++ " " 
+                            else 
+                              ""
+
 parsecmd :: [Char] -> IO()
 parsecmd x | (x == "q") = end
            | otherwise = return()
