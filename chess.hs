@@ -36,7 +36,9 @@ display board = do
   
 performCmd :: [Char] -> [Char] -> [Char]
 performCmd command board = 
-  if elem1Index <= elem2Index then
+  if elem1Index == elem2Index then
+    board
+  else if elem1Index < elem2Index then
     (Data.List.take elem1Index board) ++ " "  ++ (sublist (elem1Index+1) (elem2Index-1) board) ++ [(board !! elem1Index)] ++ (sublist (elem2Index+1) 64 board)
   else
     (Data.List.take elem2Index board) ++ [(board !! elem1Index)] ++ (sublist (elem2Index + 1) (elem1Index - 1) board) ++ " " ++ (sublist (elem1Index + 1) 64 board)
